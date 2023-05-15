@@ -24,7 +24,7 @@ public class CharController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    void Update()
     {
         CalculateDirection();
         if (facing == FacingOptions.MovementDirection) FaceMovementDirection();
@@ -51,13 +51,15 @@ public class CharController : MonoBehaviour
 
         direction = Vector3.zero;
 
-        direction += Vector3.ProjectOnPlane(cameraRoot.right, transform.up).normalized * horizontal;
-        cameraForwardProjected = Vector3.ProjectOnPlane(cameraRoot.forward, transform.up).normalized;
+        direction += Vector3.ProjectOnPlane(cameraRoot.right, transform.up) * horizontal;
+        cameraForwardProjected = Vector3.ProjectOnPlane(cameraRoot.forward, transform.up);
         direction += cameraForwardProjected * vertical;
+        direction = direction.normalized;
     }
 
     private void Move()
 	{
+        //Debug.Log(direction.magnitude); //test: on keyboard always 1 while moving
         characterController.SimpleMove(direction * speed);
     }
 }
