@@ -9,6 +9,7 @@ public class CameraController : MonoBehaviour
 	public Vector2 pitchLimits = new Vector2(-60f, 60f);
 	public Transform cameraTarget;
 	public Vector2 zoomLimits = new Vector2(1, 10);
+	public float yLerp = 1f;
 
     private Transform target;
 	private float yawAngle;
@@ -39,13 +40,23 @@ public class CameraController : MonoBehaviour
 
 	private void CameraRootRelocation()
 	{
-		transform.position = target.position;
+		//follow vertically with delay 
+		float y = Mathf.Lerp(transform.position.y, target.position.y, yLerp);
+		
+		transform.position = new Vector3(target.position.x, y, target.position.z);
+		
+		//hard follow
+		//transform.position = target.position;
 	}
 
 	private void CameraRootRotation()
 	{
 		float yaw = Input.GetAxis("Mouse X");	//around Y axis, vertical
 		float pitch = Input.GetAxis("Mouse Y"); //around X axis, horizontal
+
+		//Joystick if no mouse control
+		if (yaw == 0) yaw = Input.GetAxis("Camera Joystick X");
+		if (pitch == 0) pitch = Input.GetAxis("Camera Joystick Y");
 
 		if (invertYaw) yaw = -yaw;
 		if (invertPitch) pitch = -pitch;
@@ -61,9 +72,9 @@ public class CameraController : MonoBehaviour
 	private void CameraRelocation()
 	{
 		RaycastHit hit;
-		hitted = Physics.Linecast(transform.position, cameraTarget.position, out hit);
+		hitted = Physics.Linecast(transform.position, cameraTarget.position, out hit, ~LayerMask.GetMask("PlayerCharacter")); //avoid PlayerCharacter layer.
 
-		if(hitted)
+		if (hitted)
 		{
 			cameraTransform.position = hit.point;
 
