@@ -133,12 +133,12 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 0
       value: 0.1
-      inSlope: 2.1905177
-      outSlope: 2.1905177
+      inSlope: 1.7452822
+      outSlope: 1.7452822
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0.04954955
+      outWeight: 0.06081081
     - serializedVersion: 3
       time: 1
       value: 1
@@ -151,10 +151,11 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  jumpRaiseMinTime: 0.04
+  jumpRaiseMinTime: 0.06
   jumpRaiseMaxTime: 0.35
-  jumpForwardSpeedMultiplier: 1.65
   coyoteTime: 0.1
+  airborneControlMultiplierForward: 1.8
+  airborneControlMultiplierSide: 1
 --- !u!1 &358510278226637043
 GameObject:
   m_ObjectHideFlags: 0

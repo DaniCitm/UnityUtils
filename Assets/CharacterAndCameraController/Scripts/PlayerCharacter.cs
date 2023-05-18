@@ -28,15 +28,15 @@ public class PlayerCharacter : MonoBehaviour
     public AnimationCurve jumpRaiseCurve;
     public float jumpRaiseMinTime = 0.04f;
     public float jumpRaiseMaxTime = 0.35f;
-    public float jumpForwardSpeedMultiplier = 1.65f;
     public float coyoteTime = 0.1f;
-    //TO DO public Vector3 airborneMoveMultiplier = Vector3.one; //I plan to use it to multiply direction while on the aire to avoid "walk" on the air and be able to correct poor calculated jumps too much
+    public float airborneControlMultiplierForward = 1.8f; //jump direction air control multiplier, usually more than side (below).
+    public float airborneControlMultiplierSide = 1f; //jump side direction air control multiplier
 
     private float airTime = 0f;
     private float currentJumpTime = 0f;
     private bool jumping = false;
     private float jumpY0;
-    //TO DO private Vector3 jumpDirection;
+    private Vector3 jumpDirection;
 
     // Start is called before the first frame update
     void Start()
@@ -53,19 +53,19 @@ public class PlayerCharacter : MonoBehaviour
 
         //Movement zone
         {
-            //TO DO jumpDirection = (jumpDirection + Vector3.Scale(airborneMoveMultiplier,direction)).normalized;
-
             Vector3 movement = Vector3.zero;
             speed = runEnabled && Input.GetButton("Run") ? runSpeed : moveSpeed;    //set movement speed
 
-            movement = Time.deltaTime * direction * speed;
-
-            if (jumping)    //raising in the air
+            //Air control. maneuverability of the player on the air.
+            if (jumping || airTime > coyoteTime)
             {
-                movement *= jumpForwardSpeedMultiplier;
-                movement.y = GetJumpCurrentHeight();
+                //making absolute the result of dot product we make that vectors aligned with jumpDirection = 1 and the perpendicular = 0. Then remap that 0-1 range to something else (1-1.8 by default) and use it on the vector lerp to get the new direction
+                float multiplier = Mathf.Abs(Vector3.Dot(jumpDirection, direction)).Remap(0f,1f, airborneControlMultiplierSide, airborneControlMultiplierForward);
+                direction = Vector3.Lerp(jumpDirection, multiplier * direction, 0.75f); //  3/4 new direction, 1/4 original one.
             }
-            else movement.y = gravity * Time.deltaTime;
+
+            movement = Time.deltaTime * direction * speed;
+            movement.y = jumping ? GetJumpCurrentHeight() : Time.deltaTime * gravity;
 
             characterController.Move(movement);
         }
@@ -146,7 +146,7 @@ public class PlayerCharacter : MonoBehaviour
         jumping = true;
         currentJumpTime = 0f;
         jumpY0 = transform.position.y;
-        //TO DO jumpDirection = transform.forward;
+        jumpDirection = transform.forward;
     }
 
     //Jump raise is calculated using a curve. The curve must go from time 0 to 1 and value should start a little bit over 0 (like 0.1, that's to make the character quickly raise and make jump feel super responsive) and finish on 1 too.
