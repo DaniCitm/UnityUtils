@@ -122,7 +122,7 @@ MonoBehaviour:
   moveSpeed: 5
   runEnabled: 1
   runSpeed: 10
-  gravity: 13
+  gravity: -13
   facing: 1
   playerCanJump: 1
   topLimit: {fileID: 5891512463915557104}
@@ -153,7 +153,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   jumpRaiseMinTime: 0.04
   jumpRaiseMaxTime: 0.35
-  jumpForwardSpeedMultiplier: 1.5
+  jumpForwardSpeedMultiplier: 1.65
   coyoteTime: 0.1
 --- !u!1 &358510278226637043
 GameObject:

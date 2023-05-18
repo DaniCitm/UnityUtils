@@ -13,7 +13,7 @@ public class PlayerCharacter : MonoBehaviour
     public float moveSpeed = 5f;
     public bool runEnabled = true;
     public float runSpeed = 10f;
-    public float gravity = 9.8f; //13 works ok
+    public float gravity = -9.8f; //-13 works ok
     public FacingOptions facing = FacingOptions.MovementDirection;
 
     private CharacterController characterController;
@@ -48,35 +48,46 @@ public class PlayerCharacter : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        speed = runEnabled && Input.GetButton("Run") ? runSpeed : moveSpeed;    //set movement speed
-
         CalculateDirection();
         if (facing != FacingOptions.None) Facing(facing);
 
-        //We can be jumping (raising in the air or not) Movement works different with one or the other but it will be unified (TO DO).
-        if (jumping) Jumping();
-        else
+        //Movement zone
         {
-            //Moving on the ground or falling.
-            characterController.Move(Time.deltaTime * (direction * speed - gravity * Vector3.up));
+            //TO DO jumpDirection = (jumpDirection + Vector3.Scale(airborneMoveMultiplier,direction)).normalized;
+
+            Vector3 movement = Vector3.zero;
+            speed = runEnabled && Input.GetButton("Run") ? runSpeed : moveSpeed;    //set movement speed
+
+            movement = Time.deltaTime * direction * speed;
+
+            if (jumping)    //raising in the air
+            {
+                movement *= jumpForwardSpeedMultiplier;
+                movement.y = GetJumpCurrentHeight();
+            }
+            else movement.y = gravity * Time.deltaTime;
+
+            characterController.Move(movement);
         }
 
         //Jump zone.
-        if (!playerCanJump) return;
-
-        //if player press jump (and can do it) it calls Jump, a method that reset jump state and set jumping to true.
-        if (Input.GetButtonDown("Jump") && !jumping && airTime < coyoteTime)
         {
-            Jump();
-        }
-        //if jump button released and minimum jump time is reached, jumping = false
-        else if (!Input.GetButton("Jump") && currentJumpTime >= jumpRaiseMinTime)
-        {
-            jumping = false;
-        }
+            if (!playerCanJump) return;
 
-        // if jump time is finished jumping = false
-        if (jumping && currentJumpTime >= jumpRaiseMaxTime) jumping = false;
+            //if player press jump (and can do it) it calls Jump, a method that reset jump state and set jumping to true.
+            if (Input.GetButtonDown("Jump") && !jumping && airTime < coyoteTime)
+            {
+                Jump();
+            }
+            //if jump button released and minimum jump time is reached, jumping = false
+            else if (!Input.GetButton("Jump") && currentJumpTime >= jumpRaiseMinTime)
+            {
+                jumping = false;
+            }
+
+            // if jump time is finished jumping = false
+            if (jumping && currentJumpTime >= jumpRaiseMaxTime) jumping = false;
+        }
     }
 
     private void FixedUpdate()
@@ -138,15 +149,14 @@ public class PlayerCharacter : MonoBehaviour
         //TO DO jumpDirection = transform.forward;
     }
 
-    //While jumping (raising to the air) height is calculated by a curve and time. It's also multiplied by the height of our jump.
-    //This method moves character, but height could be stored and use always the same Move function. TO DO.
-    private void Jumping()
+    //Jump raise is calculated using a curve. The curve must go from time 0 to 1 and value should start a little bit over 0 (like 0.1, that's to make the character quickly raise and make jump feel super responsive) and finish on 1 too.
+    // Returns how much the character needs to move up this frame
+    private float GetJumpCurrentHeight()
     {
         currentJumpTime += Time.deltaTime;
         var curveTime = currentJumpTime.Remap01(0, jumpRaiseMaxTime);
         float currentJumpHeight = jumpY0 + jumpHeight * jumpRaiseCurve.Evaluate(curveTime);
 
-        //TO DO jumpDirection = (jumpDirection + Vector3.Scale(airborneMoveMultiplier,direction)).normalized;
-        characterController.Move(direction * Time.deltaTime * speed * jumpForwardSpeedMultiplier + Vector3.up * (currentJumpHeight - transform.position.y));
+        return currentJumpHeight - transform.position.y;
     }
 }
