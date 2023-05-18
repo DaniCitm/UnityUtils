@@ -110,7 +110,6 @@ public class PlayerCharacter : MonoBehaviour
         {
             airTime += Time.deltaTime;
         }
-
     }
 
 	private void Facing(FacingOptions facing)
