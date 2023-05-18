@@ -2,10 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//TO DO
+//Clamp yLerp to top and bottom margins
+//Flag to relocate camera on the back of character automatically when running.
 public class CameraController : MonoBehaviour
 {
-	public bool invertYaw = false;
-	public bool invertPitch = false;
+	public bool invertMouseYaw = false;
+	public bool invertGamepadYaw = false;
+	public bool invertMousePitch = false;
+	public bool invertGamepadPitch = false;
 	public Vector2 pitchLimits = new Vector2(-60f, 60f);
 	public Transform cameraTarget;
 	public Vector2 zoomLimits = new Vector2(1, 10);
@@ -53,13 +58,22 @@ public class CameraController : MonoBehaviour
 	{
 		float yaw = Input.GetAxis("Mouse X");	//around Y axis, vertical
 		float pitch = Input.GetAxis("Mouse Y"); //around X axis, horizontal
-
+		
 		//Joystick if no mouse control
-		if (yaw == 0) yaw = Input.GetAxis("Camera Joystick X");
-		if (pitch == 0) pitch = Input.GetAxis("Camera Joystick Y");
+		if (yaw == 0 && pitch == 0)
+		{
+			yaw = Input.GetAxis("Camera Joystick X");
+			pitch = Input.GetAxis("Camera Joystick Y");
 
-		if (invertYaw) yaw = -yaw;
-		if (invertPitch) pitch = -pitch;
+			if (invertGamepadYaw) yaw = -yaw;
+			if (invertGamepadPitch) pitch = -pitch;
+		}
+		else
+        {
+			if (invertMouseYaw) yaw = -yaw;
+			if (invertMousePitch) pitch = -pitch;
+		}
+
 
 		pitchAngle += pitch;
 		yawAngle += yaw;

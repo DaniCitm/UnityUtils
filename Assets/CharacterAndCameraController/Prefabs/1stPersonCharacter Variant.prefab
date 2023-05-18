@@ -46,6 +46,11 @@ PrefabInstance:
       propertyPath: zoomLimits.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 358510276875485972, guid: 8b0f2f67b9baf46298505922baa580e0,
+        type: 3}
+      propertyPath: invertMousePitch
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 358510277710089726, guid: 8b0f2f67b9baf46298505922baa580e0,
         type: 3}
       propertyPath: m_Name

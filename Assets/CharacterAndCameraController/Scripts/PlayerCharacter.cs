@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class CharController : MonoBehaviour
+public class PlayerCharacter : MonoBehaviour
 {
 	public enum FacingOptions
 	{
@@ -10,22 +10,25 @@ public class CharController : MonoBehaviour
 	}
 
     public Transform cameraRoot;
-    public float speed = 2f;
-    public float gravity = 9.8f;
+    public float moveSpeed = 5f;
+    public bool runEnabled = true;
+    public float runSpeed = 10f;
+    public float gravity = 9.8f; //13 works ok
     public FacingOptions facing = FacingOptions.MovementDirection;
 
     private CharacterController characterController;
     private Vector3 direction;
     private Vector3 cameraForwardProjected;
+    private float speed;
 
     [Header("Jump")]
     public bool playerCanJump = true;
     public Transform topLimit; //if a little sphere in that position collides with something, jump stops
-    public float jumpHeight = 3f;
+    public float jumpHeight = 3.8f;
     public AnimationCurve jumpRaiseCurve;
-    public float jumpRaiseMinTime = 0.03f;
-    public float jumpRaiseMaxTime = 0.3f;
-    public float jumpForwardSpeedMultiplier = 1.5f;
+    public float jumpRaiseMinTime = 0.04f;
+    public float jumpRaiseMaxTime = 0.35f;
+    public float jumpForwardSpeedMultiplier = 1.65f;
     public float coyoteTime = 0.1f;
     //TO DO public Vector3 airborneMoveMultiplier = Vector3.one; //I plan to use it to multiply direction while on the aire to avoid "walk" on the air and be able to correct poor calculated jumps too much
 
@@ -39,11 +42,14 @@ public class CharController : MonoBehaviour
     void Start()
     {
         characterController = GetComponent<CharacterController>();
+        speed = moveSpeed;
     }
 
     // Update is called once per frame
     void Update()
     {
+        speed = runEnabled && Input.GetButton("Run") ? runSpeed : moveSpeed;    //set movement speed
+
         CalculateDirection();
         if (facing != FacingOptions.None) Facing(facing);
 
@@ -132,7 +138,7 @@ public class CharController : MonoBehaviour
         //TO DO jumpDirection = transform.forward;
     }
 
-    //While jumping (raising to the aire) height is calculated by a curve and time. It's also multiplied by the height of our jump.
+    //While jumping (raising to the air) height is calculated by a curve and time. It's also multiplied by the height of our jump.
     //This method moves character, but height could be stored and use always the same Move function. TO DO.
     private void Jumping()
     {
