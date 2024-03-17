@@ -146,6 +146,7 @@ public class PlayerCharacter : MonoBehaviour
         currentJumpTime = 0f;
         jumpY0 = transform.position.y;
         jumpDirection = transform.forward;
+        setSquashY(1.5f);
     }
 
     //Jump raise is calculated using a curve. The curve must go from time 0 to 1 and value should start a little bit over 0 (like 0.1, that's to make the character quickly raise and make jump feel super responsive) and finish on 1 too.
@@ -157,5 +158,35 @@ public class PlayerCharacter : MonoBehaviour
         float currentJumpHeight = jumpY0 + jumpHeight * jumpRaiseCurve.Evaluate(curveTime);
 
         return currentJumpHeight - transform.position.y;
+    }
+
+    private float squashX = 1f;  //Transform X squash & stretch scaling, which automatically comes back to 1 after a few frames.
+    private float squashY = 1f;  //Transform Y squash & stretch scaling, which automatically comes back to 1 after a few frames.
+
+    void LateUpdate()
+    {
+        var scale = transform.localScale;
+        scale.x = transform.localScale.x * squashX;
+        scale.x = transform.localScale.z * squashX;
+        scale.y = transform.localScale.y * squashY;
+        transform.localScale = scale;
+        Debug.Log(squashY);
+
+        squashX += (1 - squashX);
+        squashY += (1 - squashY) * Mathf.Min(1, 0.2f);
+    }
+
+    // Briefly squash sprite on X (Y changes accordingly). "1.0" means no distorsion.
+    public void SetSquashX(float scaleX)
+    {
+        squashX = scaleX;
+        squashY = 2 - scaleX;
+    }
+
+    // Briefly squash sprite on Y (X changes accordingly). "1.0" means no distorsion.
+    public void setSquashY(float scaleY)
+    {
+        squashX = 2 - scaleY;
+        squashY = scaleY;
     }
 }
